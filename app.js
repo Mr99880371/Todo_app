@@ -7,8 +7,10 @@ const app = express();
 
 usuariosController(app)
 
-app.listen(port, () => console.log('[INFO]: servidor rodando em localhost:${port}'))
-    // let obj = {};
+app.listen(port, () =>
+    console.log('[INFO]: servidor rodando em localhost:${port}'))
+
+// let obj = {};
 
 // function modificaObjeto(objetoQualquer) {
 //     objetoQualquer.nome = "resilia";

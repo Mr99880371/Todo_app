@@ -1,50 +1,67 @@
-const Tarefas = require('../models/tarefas');
+const TarefasDao = require('../DAO/tarefas-dao');
 
 module.exports = (app, bd) => {
+    const DaoTarefas = new TarefasDao(bd)
+    app.get('/tarefas', async(req, resp) => {
+            try {
+                let tarefasDeRetorno = await DaoTarefas.listaTarefas();
+                resp.send(tarefasDeRetorno);
+            } catch (erro) {
+                resp.send(erro);
+            }
 
-    app.get('/tarefas', (req, resp) => {
-            resp.send(bd.tarefas);
         })
-        //get mostra = 'select'
-    app.get('/tarefas/:status', (req, resp) => {
-            for (let i of bd.tarefas) {
-                if (req.params.status == i.status) {
-                    resp.send(i)
-                }
+        //get mostra = 'select/read'
+    app.get('/tarefas/:id', async(req, resp) => {
+            try {
+                let buscaTrf = await DaoTarefas.buscaTarefas(req.params.id);
+                resp.send(buscaTrf);
+            } catch (erro) {
+                resp.send(erro);
             }
         })
-        //post envia = 'insert'
-    app.post('/tarefas', (req, resp) => {
-        const trf = new Tarefas(req.body.titulo, req.body.descricao, req.body.status, req.body.dataDeDescricao)
-        bd.usuario.push(trf)
-        console.log(bd)
-        resp.send("Ok");
-    })
-    app.delete('/tarefas/:titulo', (req, resp) => {
-        for (let i = 0; i < bd.titulo; i++) {
-            if (req.params.titulo == titulo[i]) {
-                bd.tarefas.splice(i, 1)
-                console.log(i)
-                resp.send('removido com sucesso')
-            }
+        //post envia = 'insert/creat'
+    app.post('/tarefas', async(req, resp) => {
+        let dados = [
+            req.body.titulo,
+            req.body.descricao,
+            req.body.status,
+            req.body.dataCriacao,
+            req.body.id_usuario
+        ]
+        try {
+            let enviodatarefa = await DaoTarefas.enviaTarefa(dados);
+            resp.send(enviodatarefa);
+        } catch (erro) {
+            resp.send(erro);
         }
     })
-    app.put('/tarefas/:titulo', (req, resp) => {
-            for (let i of bd.tarefas) {
-                if (req.params.titulo == i.titulo) {
-                    i.titulo = req.body.titulo
-                    resp.send('atualizado com sucesso')
-                }
+
+    //delete deleta os dados = 'delete'
+    app.delete('/tarefas/:id', async(req, resp) => {
+            try {
+                let tarefadeletada = await DaoTarefas.deletaTarefas(req.params.id);
+                resp.send(tarefadeletada);
+            } catch (erro) {
+                resp.send(erro);
             }
         })
-        // app.get('/tarefas', (req, resp) => {
-        //     resp.send(bd.tarefas);
-        // });
+        //atualiza os dados = 'update'
+    app.put('/tarefas/:id', async(req, resp) => {
+        let parametros = [
+            req.body.titulo,
+            req.body.descricao,
+            req.body.status,
+            req.body.dataCriacao,
+            req.body.id_usuario,
+            req.params.id
+        ]
+        try {
+            let tarefasAtualiza = await DaoTarefas.atualizaTarefas(parametros);
+            resp.send(tarefasAtualiza);
+        } catch (erro) {
+            resp.send(erro);
+        }
+    })
 
-    // app.post('/tarefas', (req, resp) => {
-    //     const trf = new Tarefas(req.body.titulo, req.body.descricao, req.body.status, req.body.dataDeDescricao)
-    //     bd.tarefas.push(trf)
-    //     console.log(bd)
-    //     resp.send("Ok");
-    // })
 }
